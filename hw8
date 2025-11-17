@@ -1,0 +1,219 @@
+---
+title: "HW #8 – ECON 4100: Economic Development"
+author: "Caleb"
+date: "11/16/2025"
+output:
+  pdf_document:
+    extra_dependencies: ["polyglossia","mathtools", "amsmath", "amsfonts", "float","booktabs","siunitx","fontspec"]
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+subtitle: "Select Questions from Ashraf & Weil (2025): Chapter 10"
+
+header-includes:
+  - \usepackage{mathtools}
+  - \usepackage{amsmath}
+  - \usepackage{amsfonts}
+  - \usepackage{float}
+  - \usepackage{booktabs}
+  - \usepackage{siunitx}
+  - \usepackage{fontspec}
+  - \usepackage{polyglossia}
+  #- \usepackage{cm-unicode}
+  - \setdefaultlanguage{english}
+  - \setotherlanguage{serbian}
+  - \newfontfamily\cyrillicfont   [Script=Cyrillic]{DejaVu Serif}
+  - \newfontfamily\cyrillicfontsf [Script=Cyrillic]{DejaVu Sans}
+  - \newfontfamily\cyrillicfonttt [Script=Cyrillic]{DejaVu Sans Mono}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(kableExtra)
+library(latex2exp)
+library(grid)
+
+```
+
+# Chapter 10 – Efficiency
+
+## Question 1 – Efficiency Comparison: Countries X and Z
+
+**Derivation**
+
+Chapter 10 decomposes productivity as
+
+\[
+A = T \times E,
+\]
+
+where \(A\) is productivity, \(T\) is technology, and \(E\) is efficiency.
+
+Taking ratios across countries yields
+
+\[
+\frac{A_X}{A_Z} = \frac{T_X}{T_Z}\times \frac{E_X}{E_Z}.
+\]
+
+Given \(\frac{A_X}{A_Z}=2\) (X has twice the productivity) and \(\frac{T_X}{T_Z}=4\) (X has four times the technology),
+
+\[
+\frac{E_X}{E_Z} = \frac{\frac{A_X}{A_Z}}{\frac{T_X}{T_Z}}
+= \frac{2}{4}
+= \tfrac{1}{2}.
+\]
+
+**Interpretation**  
+
+Country X’s efficiency is **half** that of Country Z; equivalently, Country Z is **twice as efficient** as Country X.
+
+---
+
+## Question 2 – Efficiency in Country X Relative to the United States
+
+**Givens**
+
+- Relative productivity: \(A_X/A_{US} = 0.5\)  
+- Technology growth (per year): \(g = 1\% = 0.01\)  
+- Technology lag of Country X: \(L = 20\) years
+
+**Derivation**
+
+Productivity is decomposed into **technology** and **efficiency**:
+\[
+\frac{A_X}{A_{US}}=\frac{Z_X}{Z_{US}}\cdot \frac{E_X}{E_{US}}.
+\]
+
+With constant technology growth \(g\) and a technology lag of \(L\) years, the technology ratio is:
+\[
+\frac{Z_X}{Z_{US}}=(1+g)^{-L}.
+\]
+
+This is the same decomposition and “technology‑lag” calculation used around **Section 10.1** and **Table 10.1** to back out efficiency from a known productivity gap.
+
+**Calculation**
+
+```{r q2 calculations}
+# given inputs
+A_ratio <- 0.50
+g       <- 0.01
+L       <- 20
+
+# technology ratio implied by a 20-year lag at 1% annual growth
+Z_ratio <- (1 + g)^(-L)     
+
+# efficiency ratio
+E_ratio <- A_ratio / Z_ratio  
+
+# print info
+c(Z_ratio = Z_ratio,
+  E_ratio = E_ratio,
+  E_percent = 100 * E_ratio)
+```
+So,
+\[
+\frac{Z_X}{Z_{US}} = (1.01)^{-20} \approx 0.8195, \qquad
+\frac{E_X}{E_{US}} = \frac{0.5}{0.8195} \approx 0.6101.
+\]
+
+**Interpretation**
+
+The level of efficiency in Country X is approximately 61% of the U.S. efficiency level.
+
+---
+
+## Question 3 – Technology Gap between India and the United States
+
+**Context**
+
+Section 10.1 of the provided Chapter 10 (“Efficiency”) decomposes productivity as \(A = T \times E\) and models a *technology gap* \(G\) (in years) as a time‑lag with geometric growth: if U.S. technology grows at rate \(g_{\text{US}}\), then
+\[
+\frac{T_{\text{IND}}}{T_{\text{US}}} = (1+g_{\text{US}})^{-G}.
+\]
+Using the section’s India–U.S. productivity ratio of \(A_{\text{IND}}/A_{\text{US}} \approx 0.39\) and \(g_{\text{US}} = 0.91\%\) per year, and assuming equal efficiencies \(E_{\text{IND}} = E_{\text{US}}\), the productivity ratio equals the technology ratio.
+
+**Calculation**
+
+With equal efficiencies:
+\[
+0.39 = (1+0.0091)^{-G}
+\quad\Rightarrow\quad
+G = \frac{\ln(1/0.39)}{\ln(1.0091)}.
+\]
+
+```{r q3 calculations}
+# given inputs
+ratio <- 0.39      # A_IND / A_US from the chapter
+g     <- 0.0091    # U.S. technology (productivity) growth per year
+
+# discrete time (chapter’s setup)
+G_discrete    <- log(1/ratio) / log(1 + g)
+
+# display
+c(
+  G_discrete_years   = G_discrete,
+  rounded_answer     = round(G_discrete)
+)
+```
+
+**Interpretation**
+
+Under Chapter 10's discrete growth specification, the implied technology gap is about **104 years**. Therefore if India's efficiency level equaled that of the United States, India's technology level would be roughly what the United States' had been about 104 years earlier.
+
+## Question 4 – Real-World Inefficiencies and their Categorization
+
+**1. Restrictive urban zoning in high‑productivity cities (misallocation across sectors/regions)** 
+
+* When height limits, minimum lot sizes, and parking mandates constrain new housing in metropolitan areas, the cost of living rises and workers are deterred from migrating to where their marginal product is highest. The economy then operates with a persistent wedge between locations’ marginal products of labor, because labor cannot reallocate until the productivity‑equalizing condition is met. In the two‑sector framework in Chapter 10, this is precisely the misallocation of factors among sectors/regions mechanism: instead of moving along the labor‑allocation schedule until the two marginal product curves intersect, policy‑induced frictions keep too little labor in the high‑TFP location and too much elsewhere, generating the familiar “triangle” of foregone output shown in Figures 10.3–10.4. The chapter explicitly highlights barriers to mobility (e.g., institutional, regulatory, or cost barriers) as the channel that prevents equalization and sustains the deadweight loss; tight land use rules function as exactly such a barrier.
+
+**2. Municipal prohibitions or caps on ridesharing platforms (technology blocking)**
+
+* When local governments ban or sharply restrict ridesharing platforms to protect incumbent taxi medallion rents, they block diffusion of a known, higher productivity dispatch and matching technology. The consequence is lower vehicle utilization, longer wait times, and fewer trips per driver than are technologically feasible, i.e., output remains inside the production possibility set because adoption is prevented by policy rather than by knowledge constraints. As is defined in Chapter 10, this is technology blocking: institutions or regulations that keep firms from using available technologies and thus depress total factor productivity relative to the frontier. While rent‑seeking by incumbents may motivate the policy, the dominant inefficiency arises from foregone adoption of an existing technology, which the chapter distinguishes from other channels such as idle resources or within‑sector misallocation.
+
+## Question 5 – Significance of Misallocation of Factors among Firms in the Serbian Economy
+
+Among the five types of inefficiency highlighted in Chapter 10, unproductive activities, idle resources, misallocation of factors across sectors, misallocation of factors among firms, and technology blocking, the misallocation among firms is, in my view, the most economically significant for contemporary Serbia. The current textbook chapter emphasizes that even when a country’s technology set and sectoral shares look adequate, aggregate productivity can remain depressed if labor and capital are trapped inside low‑MPL producers because wedges (taxes, subsidies, regulatory barriers, or credit frictions) prevent reallocation to high‑MPL firms; the logic is closely related to the output loss “triangles” shown for sectoral misallocation in Figures 10.3–10.5.
+
+In Serbia this diagnosis fits what we observe in energy, transport, and several tradable services niches. Large state‑owned incumbents, such as Електропривреда Србије (Elektroprivreda Srbije a.k.a EPS, state-owned electric utility) and Србијагас (Srbijagas, state-owned natural gas utility), plus 3 state-owned enterprises which maintain rail and urban transport, operate with soft budget constraints and administered pricing, which suppress entry and keep capital tied to legacy assets rather than reallocating toward higher productivity firms and cleaner, more flexible technologies. Consider the 2021–22 Lignite Crisis at Kolubara and outages at TPP Nikola Tesla (TENT) that forced expensive emergency imports and a recapitalization of EPS; the same pattern appears in district heating utilities and ГСП Београд (GSP Beograd, state-owned urban transport), where regulated fares and recurrent bailouts keep aging fleets and boilers in service instead of crowding in private combined heat and power (CHP) or bus operators. Market structure in network industries shows similar wedges: Srbijagas has repeatedly accumulated arrears while retaining control over wholesale and distribution, deterring independent suppliers; Телеком Србије (Telekom Srbija’s) protected expansion in landline and media has dampened competitive pressure on service quality; and Ер Србије (Air Serbia’s) recurring state support and slot advantages reduce contestability on key routes. Credit allocation mirrors these distortions: banks prefer real estate backed conglomerates, construction, and state-owned enterprise suppliers with hard collateral, while young, intangible asset firms in Belgrade and Novi Sad’s information and communication technology cluster rely on retained earnings or foreign acquirers; protracted insolvency procedures and pre‑pack reorganizations slow exit for low productivity firms (example: ПКБ a.k.a PKB before its sale to numerous municipal utilities). Layer on the widespread use of lump sum “paušalac” regimes that incentivize firm splitting to remain small, cash‑based subcontracting in construction, and parafiscal local fees, and the result is the long tail of significantly smaller enterprises that Chapter 10 predicts under firm level wedges: resources stuck in low‑MPL producers rather than scaling the frontier.
+
+## Question 7 –
+
+**Derivation**
+
+Wage schedules:
+\[
+w_1=\text{MPL}_1=\frac{dY_1}{dL_1}=\frac{1}{2}L_1^{-1/2},\qquad
+w_2=\text{AP}_2=\frac{Y_2}{L_2}=\frac{L_2^{1/2}}{L_2}=L_2^{-1/2}.
+\]
+
+Given the equal-wage condition and market clearing,  
+
+Free mobility implies \(w_1=w_2\):
+\[
+\frac{1}{2}L_1^{-1/2}=L_2^{-1/2}
+\;\Longrightarrow\;
+\sqrt{L_2}=2\sqrt{L_1}
+\;\Longrightarrow\;
+L_2=4L_1.
+\]
+Using \(L=L_1+L_2\),
+\[
+L=L_1+4L_1=5L_1 \;\Rightarrow\; 
+\boxed{L_1=\tfrac{L}{5}}, \qquad 
+\boxed{L_2=\tfrac{4L}{5}}.
+\]
+
+The common wage is
+\[
+w=\frac{1}{2\sqrt{L_1}}=\frac{\sqrt{5}}{2\sqrt{L}}.
+\]
+
+**Interpretation**
+With concave technology, average product exceeds marginal product. Paying AP in Sector 2 therefore sets its wage above its MPL and draws **too much** labor into that sector, exactly the misallocation mechanism shown under Wages Not Equal to Marginal Product (Figure 10.5).
